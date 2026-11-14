@@ -1,0 +1,53 @@
+﻿@model List<AzureCloudFileManager.Models.BlobFileInfo>
+@{
+    ViewData["Title"] = "Azure Cloud File Manager";
+}
+
+<h2 class="mb-3">☁️ Azure Cloud File Manager</h2>
+<a asp-action="ContainerSas" class="btn btn-outline-primary mb-3">📦 SAS для контейнера</a>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data" class="d-flex gap-2 mb-4">
+    <input type="file" name="file" class="form-control" required />
+    <button type="submit" class="btn btn-primary">Завантажити</button>
+</form>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Розмір</th>
+            <th>Змінено</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr><td colspan="4" class="text-muted">Контейнер порожній</td></tr>
+        }
+        @foreach (var f in Model)
+        {
+            <tr>
+                <td>@f.Name</td>
+                <td>@(f.Size.HasValue ? $"{f.Size.Value / 1024.0:F1} KB" : "-")</td>
+                <td>@f.LastModified?.LocalDateTime.ToString("dd.MM.yyyy HH:mm")</td>
+                <td class="text-end">
+                    <a asp-action="Sas" asp-route-name="@f.Name"
+                        class="btn btn-sm btn-outline-primary">SAS</a>
+                    <a asp-action="Download" asp-route-name="@f.Name"
+                       class="btn btn-sm btn-outline-secondary">Скачати</a>
+
+                    <form asp-action="Delete" asp-route-name="@f.Name" method="post" class="d-inline"
+                          onsubmit="return confirm('Видалити @f.Name?');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Видалити</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

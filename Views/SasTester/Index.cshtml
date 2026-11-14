@@ -1,0 +1,57 @@
+﻿@model AzureCloudFileManager.Models.SasTestViewModel
+@using AzureCloudFileManager.Models
+@{
+    ViewData["Title"] = "SAS Tester";
+}
+
+<h2>🧪 SAS Tester</h2>
+<p class="text-muted">
+    Перевірка доступу <strong>тільки через SAS-посилання</strong>, без Connection String і ключів акаунта.
+</p>
+
+<form asp-action="Index" method="post" class="row g-3 mb-4">
+    <div class="col-12">
+        <label asp-for="SasUrl" class="form-label">SAS-посилання на Blob</label>
+        <textarea asp-for="SasUrl" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="SasUrl" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Operation" class="form-label">Операція</label>
+        <select asp-for="Operation"
+                asp-items="Html.GetEnumSelectList<SasTestOperation>()"
+                class="form-select"></select>
+    </div>
+
+    <div class="col-md-8">
+        <label asp-for="WriteContent" class="form-label">Текст для Write</label>
+        <input asp-for="WriteContent" class="form-control" />
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Виконати</button>
+    </div>
+</form>
+
+@if (Model.Success == true)
+{
+    <div class="alert alert-success">
+        <h5>✅ Успіх: @Model.Operation</h5>
+        <p class="mb-0">@Model.ResultMessage</p>
+        @if (Model.ReadPreview != null)
+        {
+            <pre class="bg-light p-2 mt-2 mb-0">@Model.ReadPreview</pre>
+        }
+    </div>
+}
+else if (Model.Success == false)
+{
+    <div class="alert alert-danger">
+        <h5>⛔ Помилка доступу: @Model.Operation</h5>
+        @if (Model.StatusCode != null)
+        {
+            <p class="mb-1"><strong>HTTP @Model.StatusCode</strong> — <code>@Model.ErrorCode</code></p>
+        }
+        <p class="mb-0">@Model.ResultMessage</p>
+    </div>
+}

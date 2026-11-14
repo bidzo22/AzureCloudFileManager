@@ -1,0 +1,48 @@
+﻿@model AzureCloudFileManager.Models.BlobSasViewModel
+@using AzureCloudFileManager.Models
+@{
+    ViewData["Title"] = "Генерація SAS";
+}
+
+<h2>🔑 SAS-посилання для Blob</h2>
+<p class="text-muted">Файл: <strong>@Model.BlobName</strong></p>
+
+<form asp-action="Sas" method="post" class="row g-3 mb-4" style="max-width:600px">
+    <input type="hidden" asp-for="BlobName" />
+
+    <div class="col-12">
+        <label asp-for="Permission" class="form-label">Права доступу</label>
+        <select asp-for="Permission"
+                asp-items="Html.GetEnumSelectList<SasPermissionOption>()"
+                class="form-select"></select>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="ExpiresInMinutes" class="form-label">Час дії (хвилин)</label>
+        <input asp-for="ExpiresInMinutes" class="form-control" />
+        <span asp-validation-for="ExpiresInMinutes" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Згенерувати SAS</button>
+        <a asp-action="Index" class="btn btn-link">← До списку файлів</a>
+    </div>
+</form>
+
+@if (Model.SasUrl != null)
+{
+    <div class="alert alert-success">
+        <p class="mb-2">
+            <strong>Права:</strong> @Model.Permission &nbsp;|&nbsp;
+            <strong>Діє до:</strong> @Model.ExpiresOn?.LocalDateTime.ToString("dd.MM.yyyy HH:mm:ss")
+        </p>
+        <div class="input-group">
+            <input id="sasUrl" class="form-control" value="@Model.SasUrl" readonly />
+            <button type="button" class="btn btn-outline-secondary"
+                    onclick="navigator.clipboard.writeText(document.getElementById('sasUrl').value)">
+                Копіювати
+            </button>
+            <a href="@Model.SasUrl" target="_blank" class="btn btn-outline-primary">Відкрити</a>
+        </div>
+    </div>
+}

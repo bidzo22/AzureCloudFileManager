@@ -1,0 +1,54 @@
+﻿@model AzureCloudFileManager.Models.ContainerSasTestViewModel
+@{
+    ViewData["Title"] = "Container SAS Tester";
+}
+
+<h2>📦 Container SAS Tester</h2>
+<p class="text-muted">
+    Перегляд списку Blob <strong>тільки через SAS-посилання на контейнер</strong>, без Connection String.
+</p>
+
+<form asp-action="Container" method="post" class="row g-3 mb-4">
+    <div class="col-12">
+        <label asp-for="SasUrl" class="form-label">SAS-посилання на контейнер</label>
+        <textarea asp-for="SasUrl" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="SasUrl" class="text-danger"></span>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Показати список файлів</button>
+    </div>
+</form>
+
+@if (Model.Success == true)
+{
+    <div class="alert alert-success">✅ @Model.ResultMessage</div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr><th>Назва</th><th>Розмір</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var b in Model.Blobs)
+            {
+                <tr>
+                    <td>@b.Name</td>
+                    <td>@(b.Size.HasValue ? $"{b.Size.Value / 1024.0:F1} KB" : "-")</td>
+                    <td class="text-end">
+                        <a href="@b.Url" target="_blank" class="btn btn-sm btn-outline-primary">Відкрити</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (Model.Success == false)
+{
+    <div class="alert alert-danger">
+        <h5>⛔ Помилка доступу</h5>
+        @if (Model.StatusCode != null)
+        {
+            <p class="mb-1"><strong>HTTP @Model.StatusCode</strong> — <code>@Model.ErrorCode</code></p>
+        }
+        <p class="mb-0">@Model.ResultMessage</p>
+    </div>
+}
